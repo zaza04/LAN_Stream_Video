@@ -1,0 +1,10 @@
+﻿=== SERVER AUTHENTICATION LOG ===
+Generated: 2025-09-28 11:51:05
+Server Port: 8888
+
+[11:50:35] ✅ User authenticated: hoang04 (ID: 212) from 127.0.0.1:59460
+[11:50:44] ✅ User authenticated: trang03 (ID: 221) from 127.0.0.1:57586
+[11:50:51] ✅ User authenticated: hung01 (ID: 222) from 127.0.0.1:53934
+[11:50:59] Client đã kết nối: 127.0.0.1:53980 lúc 11:50:59
+[11:51:00] Client đã kết nối: 127.0.0.1:53990 lúc 11:51:00
+[11:51:01] Client đã kết nối: 127.0.0.1:59475 lúc 11:51:01

@@ -1,0 +1,56 @@
+{
+  "version": 2,
+  "dgSpecHash": "Q1w1JmHZ/NE=",
+  "success": true,
+  "projectFilePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Admin\\.nuget\\packages\\aforge\\2.2.5\\aforge.2.2.5.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\aforge.video\\2.2.5\\aforge.video.2.2.5.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\aforge.video.directshow\\2.2.5\\aforge.video.directshow.2.2.5.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.data.sqlite\\9.0.9\\microsoft.data.sqlite.9.0.9.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\microsoft.data.sqlite.core\\9.0.9\\microsoft.data.sqlite.core.9.0.9.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.10\\sqlitepclraw.bundle_e_sqlite3.2.1.10.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\sqlitepclraw.core\\2.1.10\\sqlitepclraw.core.2.1.10.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.10\\sqlitepclraw.lib.e_sqlite3.2.1.10.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.1.10\\sqlitepclraw.provider.e_sqlite3.2.1.10.nupkg.sha512",
+    "C:\\Users\\Admin\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'AForge 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "libraryId": "AForge",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'AForge.Video 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "libraryId": "AForge.Video",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'AForge.Video.DirectShow 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "libraryId": "AForge.Video.DirectShow",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
+}
