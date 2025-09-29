@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "D9JoRnOhirI=",
+  "dgSpecHash": "GkloTU5ZZcE=",
   "success": true,
-  "projectFilePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\LAN_Streaming_Video\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj",
+  "projectFilePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.data.sqlite\\9.0.9\\microsoft.data.sqlite.9.0.9.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.data.sqlite.core\\9.0.9\\microsoft.data.sqlite.core.9.0.9.nupkg.sha512",

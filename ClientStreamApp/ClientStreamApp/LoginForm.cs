@@ -15,6 +15,7 @@ namespace ClientStreamApp
         public string Username { get; private set; } = "";
         public int UserId { get; private set; } = 0;
         public bool LoginSuccessful { get; private set; } = false;
+        public string AuthToken { get; private set; } = "";
 
         // Private fields
         private UdpClient udpClient;
@@ -137,7 +138,8 @@ namespace ClientStreamApp
                 // Process server response
                 var result = await receiveTask;
                 string responseJson = Encoding.UTF8.GetString(result.Buffer);
-                var authResponse = JsonSerializer.Deserialize<AuthMessage>(responseJson);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var authResponse = JsonSerializer.Deserialize<AuthMessage>(responseJson, options);
 
                 if (authResponse != null)
                 {
@@ -168,6 +170,7 @@ namespace ClientStreamApp
                 // Login successful
                 Username = authResponse.Username;
                 UserId = authResponse.UserId;
+                AuthToken = authResponse.Token; // Lưu lại token
                 LoginSuccessful = true;
 
                 ShowStatus($"✅ Welcome {Username}!", Color.Green);
@@ -251,5 +254,6 @@ namespace ClientStreamApp
         public string Password { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
         public int UserId { get; set; }
+        public string Token { get; set; } = string.Empty;
     }
 }

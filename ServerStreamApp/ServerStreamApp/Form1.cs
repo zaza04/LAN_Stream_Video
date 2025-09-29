@@ -31,7 +31,8 @@ namespace ServerStreamApp
         private readonly object clientLock = new object();
         private ImageCodecInfo jpegEncoder;
         private Dictionary<IPEndPoint, ClientStats> clientStats = new Dictionary<IPEndPoint, ClientStats>();
-        private Dictionary<IPEndPoint, User> authenticatedClients = new Dictionary<IPEndPoint, User>();
+        private Dictionary<string, User> authenticatedUsersByToken = new Dictionary<string, User>();
+        private Dictionary<IPEndPoint, User> streamingClients = new Dictionary<IPEndPoint, User>();
 
         // Thêm biến này để định danh server
         private readonly string ServerName = "Server";
@@ -89,10 +90,10 @@ namespace ServerStreamApp
                 while (isStreaming)
                 {
                     UdpReceiveResult result = await udpServer.ReceiveAsync();
-                    string message = Encoding.UTF8.GetString(result.Buffer);
+                    string message = Encoding.UTF8.GetString(result.Buffer).Trim();
 
                     // XỬ LÝ AUTHENTICATION REQUEST từ client
-                    if (message.StartsWith("{\"Type\":\"AUTH_REQUEST\""))
+                    if (message.Contains("AUTH_REQUEST"))
                     {
                         await ProcessAuthRequest(result.RemoteEndPoint, message);
                         continue; // Đảm bảo không xử lý tiếp các nhánh dưới
@@ -120,52 +121,54 @@ namespace ServerStreamApp
                             BroadcastChatMessage(result.RemoteEndPoint, clientInfo, content);
                         }
                     }
-                    else if (message == "REGISTER")
+                    else if (message.StartsWith("[REGISTER]"))
                     {
-                        // Cho phép REGISTER nếu IP đã xác thực (bỏ qua port)
-                        bool isAuthenticated = false;
+                        // Format: [REGISTER][token]
+                        string token = message.Substring("[REGISTER]".Length).Trim('[', ']');
                         User user = null;
+
                         lock (clientLock)
                         {
-                            foreach (var kvp in authenticatedClients)
+                            if (authenticatedUsersByToken.TryGetValue(token, out user))
                             {
-                                if (kvp.Key.Address.Equals(result.RemoteEndPoint.Address))
-                                {
-                                    isAuthenticated = true;
-                                    user = kvp.Value;
-                                    authenticatedClients[result.RemoteEndPoint] = user; // Gán user cho endpoint mới
-                                    break;
-                                }
+                                // Xác thực bằng token thành công, gán user cho endpoint mới này
+                                streamingClients[result.RemoteEndPoint] = user;
                             }
                         }
 
-                        if (isAuthenticated)
+                        if (user != null)
                         {
-                            await ProcessClientRegistration(result.RemoteEndPoint);
+                            await ProcessClientRegistration(result.RemoteEndPoint, user);
                         }
                         else
                         {
-                            var authRequired = new AuthMessage
-                            {
-                                Type = "AUTH_REQUIRED",
-                                Message = "Please authenticate first"
-                            };
-                            string authJson = JsonSerializer.Serialize(authRequired);
-                            byte[] authData = Encoding.UTF8.GetBytes(authJson);
-                            await udpServer.SendAsync(authData, authData.Length, result.RemoteEndPoint);
+                            // Log hoặc xử lý token không hợp lệ
+                            AppendLog($"❌ Invalid token registration attempt from {result.RemoteEndPoint}");
                         }
                     }
                     else if (message == "UNREGISTER")
                     {
+                        string clientIdentifier;
                         lock (clientLock)
                         {
-                            connectedClients.RemoveAll(ep => ep.Equals(result.RemoteEndPoint));
+                            if (streamingClients.TryGetValue(result.RemoteEndPoint, out User user))
+                            {
+                                clientIdentifier = $"User '{user.Username}'";
+                            }
+                            else
+                            {
+                                clientIdentifier = $"Client {result.RemoteEndPoint}";
+                            }
+
+                            // Cleanup
+                            connectedClients.Remove(result.RemoteEndPoint);
+                            streamingClients.Remove(result.RemoteEndPoint);
                             clientStats.Remove(result.RemoteEndPoint);
                         }
 
                         this.BeginInvoke(new Action(() =>
                         {
-                            AppendLog($"Client ngắt kết nối: {result.RemoteEndPoint} lúc {DateTime.Now:HH:mm:ss}");
+                            AppendLog($"{clientIdentifier} đã ngắt kết nối lúc {DateTime.Now:HH:mm:ss}");
                             UpdateClientStats();
                         }));
                     }
@@ -196,7 +199,8 @@ namespace ServerStreamApp
             try
             {
                 // Deserialize authentication request từ client
-                var authRequest = JsonSerializer.Deserialize<AuthMessage>(message);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var authRequest = JsonSerializer.Deserialize<AuthMessage>(message, options);
 
                 if (authRequest != null && authRequest.Type == "AUTH_REQUEST")
                 {
@@ -209,9 +213,11 @@ namespace ServerStreamApp
                     if (user != null)
                     {
                         // Xác thực thành công
+                        string token = Guid.NewGuid().ToString();
                         authResponse.Type = "AUTH_SUCCESS";
                         authResponse.Username = user.Username;
                         authResponse.UserId = user.UserId;
+                        authResponse.Token = token; // Gửi token về cho client
                         authResponse.Message = "Authentication successful";
 
                         // Log login vào database
@@ -222,12 +228,10 @@ namespace ServerStreamApp
                             AppendLog($"✅ User authenticated: {user.Username} (ID: {user.UserId}) from {clientEndPoint}");
                         }));
 
-                        // Thêm client vào danh sách đã xác thực
+                        // Thêm client vào danh sách đã xác thực bằng token
                         lock (clientLock)
                         {
-                            authenticatedClients[clientEndPoint] = user;
-                            // Thêm dòng này để cập nhật giao diện ngay:
-                            this.BeginInvoke(new Action(UpdateClientStats));
+                            authenticatedUsersByToken[token] = user;
                         }
                     }
                     else
@@ -273,7 +277,7 @@ namespace ServerStreamApp
         }
 
         // Thêm phương thức này vào trong class Form1
-        private async Task ProcessClientRegistration(IPEndPoint clientEndPoint)
+        private async Task ProcessClientRegistration(IPEndPoint clientEndPoint, User user)
         {
             bool isFirstRegister = false;
             lock (clientLock)
@@ -290,7 +294,7 @@ namespace ServerStreamApp
             {
                 this.BeginInvoke(new Action(() =>
                 {
-                    AppendLog($"Client đã kết nối: {clientEndPoint} lúc {DateTime.Now:HH:mm:ss}");
+                    AppendLog($"User '{user.Username}' đã kết nối từ {clientEndPoint} lúc {DateTime.Now:HH:mm:ss}");
                     UpdateClientStats();
                 }));
 
@@ -328,7 +332,7 @@ namespace ServerStreamApp
                     //sb.AppendLine("DANH SÁCH CLIENT");
                     foreach (var client in connectedClients)
                     {
-                        if (authenticatedClients.TryGetValue(client, out User user))
+                        if (streamingClients.TryGetValue(client, out User user))
                         {
                             //sb.AppendLine($"• User: {user.Username} (ID: {user.UserId})");
                             //sb.AppendLine($"  - IP: {client.Address}:{client.Port}");
@@ -525,7 +529,7 @@ namespace ServerStreamApp
                 {
                     // Chỉ gửi cho client đã đăng ký và đã xác thực
                     clientsCopy = connectedClients
-                        .Where(ep => authenticatedClients.ContainsKey(ep))
+                        .Where(ep => streamingClients.ContainsKey(ep))
                         .ToList();
 
                     if (clientsCopy.Count == 0)
@@ -771,18 +775,22 @@ namespace ServerStreamApp
             }
         }
 
-        // Thêm method helper này vào class Form1
         private void AppendLog(string message)
         {
+            if (chatBox.InvokeRequired)
+            {
+                this.BeginInvoke(new Action(() => AppendLog(message)));
+                return;
+            }
+
             chatBox.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}{Environment.NewLine}");
             chatBox.ScrollToCaret();
 
             // Lưu log xác thực vào danh sách
             if (message.Contains("User authenticated:") ||
-                message.Contains("logged in from") ||
                 message.Contains("Authentication failed for:") ||
-                message.Contains("Client đã kết nối:") ||
-                message.Contains("Client ngắt kết nối:"))
+                message.Contains("đã kết nối") ||
+                message.Contains("đã ngắt kết nối"))
             {
                 authenticationLogs.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
             }
@@ -793,6 +801,7 @@ namespace ServerStreamApp
             try
             {
                 udpServer = new UdpClient(udpPort);
+                udpServer.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 isStreaming = true;
 
                 // Xóa dòng này: AppendLog($"UDP Server started on port {udpPort}");
@@ -804,12 +813,16 @@ namespace ServerStreamApp
             }
             catch (Exception ex)
             {
-                // Lưu thông tin lỗi để hiển thị trong clientBox
-                string errorMsg = $"UDP Server error: {ex.Message}";
+                string errorMsg = $"UDP Server startup error: {ex.Message}";
+                AppendLog(errorMsg); // Log the error to the chatBox
+                MessageBox.Show(errorMsg, "Server Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // Reset UI state
                 this.BeginInvoke(new Action(() =>
                 {
-                    // Không dùng AppendLog
-                    UpdateClientStats();
+                    UpdateConnectionStatus(false);
+                    connectButton.Enabled = true;
+                    disconnectButton.Enabled = false;
                 }));
             }
         }
@@ -1024,49 +1037,42 @@ namespace ServerStreamApp
                 return;
             }
 
-            try
+            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
-                // Đường dẫn cố định
-                string folderPath = @"D:\Study\Học tập tốt, lao động tốt\Lập trình mạng\project chính\LAN_Streaming_Video\ServerStreamApp\ServerStreamApp\saveLogs";
-                string filePath = Path.Combine(folderPath, $"ServerLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
-
-                // Tạo thư mục nếu chưa có
-                if (!Directory.Exists(folderPath))
-                    Directory.CreateDirectory(folderPath);
-
-                using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
+                saveFileDialog.Title = "Chọn nơi lưu file log";
+                saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+                saveFileDialog.FileName = $"ServerLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    writer.WriteLine("=== SERVER AUTHENTICATION LOG ===");
-                    writer.WriteLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                    writer.WriteLine($"Server Port: {udpPort}");
-                    writer.WriteLine();
-
-                    foreach (string log in authenticationLogs)
+                    try
                     {
-                        writer.WriteLine(log);
+                        string filePath = saveFileDialog.FileName;
+
+                        using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
+                        {
+                            writer.WriteLine("=== SERVER AUTHENTICATION LOG ===");
+                            writer.WriteLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                            writer.WriteLine($"Server Port: {udpPort}");
+                            writer.WriteLine();
+
+                            foreach (string log in authenticationLogs)
+                            {
+                                writer.WriteLine(log);
+                            }
+                        }
+
+                        MessageBox.Show($"Đã lưu log thành công!\nFile: {filePath}", "Thành công",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        AppendLog($"Log saved to: {filePath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Lỗi lưu file: {ex.Message}", "Lỗi",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-
-                MessageBox.Show($"Đã lưu log thành công!\nFile: {filePath}", "Thành công",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                AppendLog($"Log saved to: {filePath}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Lỗi lưu file: {ex.Message}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-    }
-
-    // Thêm class này trong namespace ServerStreamApp
-    public class AuthMessage
-    {
-        public string Type { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string Message { get; set; } = string.Empty;
-        public int UserId { get; set; }
     }
 }

@@ -58,9 +58,10 @@ namespace ClientStreamApp
 
                 if (result == DialogResult.OK && loginForm.LoginSuccessful)
                 {
-                    // Lưu thông tin người dùng
+                    // Lưu thông tin người dùng và token
                     this.CurrentUsername = loginForm.Username;
                     this.CurrentUserId = loginForm.UserId;
+                    this.authToken = loginForm.AuthToken;
 
                     // Cập nhật tiêu đề cửa sổ
                     this.Text = $"Video Client - {CurrentUsername}";
@@ -75,6 +76,7 @@ namespace ClientStreamApp
         // Thêm các thuộc tính này vào Form1
         public string CurrentUsername { get; private set; } = "";
         public int CurrentUserId { get; private set; } = 0;
+        private string authToken = "";
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -169,8 +171,10 @@ namespace ClientStreamApp
                 udpClient.Client.ReceiveBufferSize = 1024 * 1024;
                 udpClient.Connect(serverIP, SERVER_PORT);
 
-                // Gửi REGISTER từ cùng UdpClient
-                byte[] registerMsg = Encoding.UTF8.GetBytes("REGISTER");
+                // Gửi REGISTER kèm token
+                string registerMessage = $"[REGISTER][{this.authToken}]";
+                byte[] registerMsg = Encoding.UTF8.GetBytes(registerMessage);
+
                 for (int i = 0; i < 3; i++)
                 {
                     await udpClient.SendAsync(registerMsg, registerMsg.Length);
@@ -239,10 +243,6 @@ namespace ClientStreamApp
 
                 // Gửi thông báo hủy đăng ký
                 byte[] unregisterMsg = Encoding.UTF8.GetBytes("UNREGISTER");
-                await udpClient.SendAsync(unregisterMsg, unregisterMsg.Length);
-
-                // Đảm bảo gửi thành công bằng cách gửi nhiều lần
-                await Task.Delay(100);
                 await udpClient.SendAsync(unregisterMsg, unregisterMsg.Length);
 
                 // Đóng kết nối

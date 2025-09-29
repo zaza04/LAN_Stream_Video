@@ -83,7 +83,7 @@ namespace ServerStreamApp.Data
                 connection.Open();
 
                 var command = connection.CreateCommand();
-                command.CommandText = "SELECT user_id, username, password FROM Users WHERE username = $username AND password = $password";
+                command.CommandText = "SELECT userId, username, password FROM Users WHERE username = $username AND password = $password";
                 command.Parameters.AddWithValue("$username", username);
                 command.Parameters.AddWithValue("$password", password);
 
@@ -115,7 +115,7 @@ namespace ServerStreamApp.Data
                 connection.Open();
 
                 var command = connection.CreateCommand();
-                command.CommandText = "INSERT INTO Login_History (user_id, login_time, ip_address) VALUES ($userId, datetime('now'), $ipAddress)";
+                command.CommandText = "INSERT INTO Login_History (userId, login_time, ip_address) VALUES ($userId, datetime('now'), $ipAddress)";
                 command.Parameters.AddWithValue("$userId", userId);
                 command.Parameters.AddWithValue("$ipAddress", ipAddress);
                 command.ExecuteNonQuery();
