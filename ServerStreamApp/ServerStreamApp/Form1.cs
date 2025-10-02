@@ -149,11 +149,13 @@ namespace ServerStreamApp
                     else if (message == "UNREGISTER")
                     {
                         string clientIdentifier;
+                        User disconnectedUser = null;
                         lock (clientLock)
                         {
                             if (streamingClients.TryGetValue(result.RemoteEndPoint, out User user))
                             {
                                 clientIdentifier = $"User '{user.Username}'";
+                                disconnectedUser = user;
                             }
                             else
                             {
@@ -164,6 +166,13 @@ namespace ServerStreamApp
                             connectedClients.Remove(result.RemoteEndPoint);
                             streamingClients.Remove(result.RemoteEndPoint);
                             clientStats.Remove(result.RemoteEndPoint);
+                        }
+
+                        // Log activity DISCONNECT
+                        if (disconnectedUser != null)
+                        {
+                            var dbHelper = new DatabaseHelper();
+                            dbHelper.LogActivity(ActivityType.DISCONNECT, disconnectedUser, result.RemoteEndPoint.Address.ToString());
                         }
 
                         this.BeginInvoke(new Action(() =>
@@ -222,6 +231,9 @@ namespace ServerStreamApp
 
                         // Log login vào database
                         dbHelper.LogLogin(user.UserId, clientEndPoint.Address.ToString());
+                        
+                        // Log activity LOGIN
+                        dbHelper.LogActivity(ActivityType.LOGIN, user, clientEndPoint.Address.ToString());
 
                         this.BeginInvoke(new Action(() =>
                         {
@@ -239,6 +251,9 @@ namespace ServerStreamApp
                         // Xác thực thất bại
                         authResponse.Type = "AUTH_FAILED";
                         authResponse.Message = "Invalid username or password";
+
+                        // Log activity AUTH_FAILED
+                        dbHelper.LogActivity(ActivityType.AUTH_FAILED, (int?)null, clientEndPoint.Address.ToString());
 
                         this.BeginInvoke(new Action(() =>
                         {
@@ -292,6 +307,10 @@ namespace ServerStreamApp
 
             if (isFirstRegister)
             {
+                // Log activity CONNECT
+                var dbHelper = new DatabaseHelper();
+                dbHelper.LogActivity(ActivityType.CONNECT, user, clientEndPoint.Address.ToString());
+
                 this.BeginInvoke(new Action(() =>
                 {
                     AppendLog($"User '{user.Username}' đã kết nối từ {clientEndPoint} lúc {DateTime.Now:HH:mm:ss}");
@@ -706,6 +725,10 @@ namespace ServerStreamApp
                         UpdateClientStats();
                     }
 
+                    // Log SERVER_START activity
+                    var dbHelper = new DatabaseHelper();
+                    dbHelper.LogActivity(ActivityType.SERVER_START, (int?)null, "127.0.0.1");
+
                     if (saveLogTimer == null)
                     {
                         saveLogTimer = new Timer();
@@ -740,6 +763,10 @@ namespace ServerStreamApp
 
                     // Dừng UDP server
                     StopUdpServer();
+
+                    // Log SERVER_STOP activity
+                    var dbHelper = new DatabaseHelper();
+                    dbHelper.LogActivity(ActivityType.SERVER_STOP, (int?)null, "127.0.0.1");
 
                     // Disable saveLog khi server dừng
                     saveLog.Enabled = false;

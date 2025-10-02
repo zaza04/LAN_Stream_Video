@@ -414,11 +414,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "projectUniqueName": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "projectName": "ServerStreamApp",
-      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\obj\\",
+      "outputPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

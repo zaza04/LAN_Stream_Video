@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj": {}
+    "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj": {}
   },
   "projects": {
-    "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj": {
+    "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj",
+        "projectUniqueName": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj",
         "projectName": "ClientStreamApp",
-        "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj",
+        "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\ClientStreamApp.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ClientStreamApp\\ClientStreamApp\\obj\\",
+        "outputPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

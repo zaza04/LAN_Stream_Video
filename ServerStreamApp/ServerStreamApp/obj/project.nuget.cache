@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9G20dU5Cifo=",
+  "dgSpecHash": "FQxxvo6x2A0=",
   "success": true,
-  "projectFilePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+  "projectFilePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\aforge\\2.2.5\\aforge.2.2.5.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\aforge.video\\2.2.5\\aforge.video.2.2.5.nupkg.sha512",
@@ -20,9 +20,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'AForge 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
-      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "libraryId": "AForge",
       "targetGraphs": [
         "net8.0-windows7.0"
@@ -32,9 +32,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'AForge.Video 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
-      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "libraryId": "AForge.Video",
       "targetGraphs": [
         "net8.0-windows7.0"
@@ -44,9 +44,9 @@
       "code": "NU1701",
       "level": "Warning",
       "message": "Package 'AForge.Video.DirectShow 2.2.5' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
-      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "projectPath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "warningLevel": 1,
-      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\project chính\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
+      "filePath": "D:\\Study\\Học tập tốt, lao động tốt\\Lập trình mạng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\ServerStreamApp.csproj",
       "libraryId": "AForge.Video.DirectShow",
       "targetGraphs": [
         "net8.0-windows7.0"

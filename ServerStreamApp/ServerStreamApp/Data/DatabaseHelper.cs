@@ -127,5 +127,74 @@ namespace ServerStreamApp.Data
                 System.Diagnostics.Debug.WriteLine($"Log error: {ex.Message}");
             }
         }
+
+        // Thêm method logging activity chính
+        public void LogActivity(ActivityType activityType, int? userId = null, string ipAddress = "")
+        {
+            try
+            {
+                using var connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO ActivityLog (UserId, ActivityType, Timestamp, IpAddress) VALUES ($userId, $activityType, datetime('now'), $ipAddress)";
+                
+                command.Parameters.AddWithValue("$userId", userId.HasValue ? userId.Value : DBNull.Value);
+                command.Parameters.AddWithValue("$activityType", activityType.ToString());
+                command.Parameters.AddWithValue("$ipAddress", ipAddress ?? string.Empty);
+                
+                command.ExecuteNonQuery();
+
+                System.Diagnostics.Debug.WriteLine($"Activity logged: {activityType} - UserId: {userId} - IP: {ipAddress}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Activity log error: {ex.Message}");
+            }
+        }
+
+        // Overload method cho trường hợp có user object
+        public void LogActivity(ActivityType activityType, User user, string ipAddress = "")
+        {
+            LogActivity(activityType, user?.UserId, ipAddress);
+        }
+
+        // Method để lấy activity logs (để hiển thị nếu cần)
+        public List<ActivityLog> GetRecentActivityLogs(int limit = 100)
+        {
+            var logs = new List<ActivityLog>();
+            try
+            {
+                using var connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = @"
+                    SELECT LogId, UserId, ActivityType, Timestamp, IpAddress 
+                    FROM ActivityLog 
+                    ORDER BY Timestamp DESC 
+                    LIMIT $limit";
+                command.Parameters.AddWithValue("$limit", limit);
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    var log = new ActivityLog
+                    {
+                        LogId = reader.GetInt32(0),
+                        UserId = reader.IsDBNull(1) ? null : reader.GetInt32(1),
+                        ActivityType = Enum.Parse<ActivityType>(reader.GetString(2)),
+                        Timestamp = DateTime.Parse(reader.GetString(3)),
+                        IpAddress = reader.GetString(4)
+                    };
+                    logs.Add(log);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Get activity logs error: {ex.Message}");
+            }
+            return logs;
+        }
     }
 }
