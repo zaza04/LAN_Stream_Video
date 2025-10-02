@@ -11,9 +11,6 @@
       "RelativeMoniker": "D:0:0:{15DA03FA-0F5C-4CBF-88A4-9A1DB92D41D6}|ClientStreamApp\\ClientStreamApp.csproj|solutionrelative:clientstreamapp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\project ch\u00EDnh\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\Models\\User.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{15DA03FA-0F5C-4CBF-88A4-9A1DB92D41D6}|ClientStreamApp\\ClientStreamApp.csproj|d:\\study\\h\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\l\u1EADp tr\u00ECnh m\u1EA1ng\\streamapp\\github\\clientstreamapp\\clientstreamapp\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{15DA03FA-0F5C-4CBF-88A4-9A1DB92D41D6}|ClientStreamApp\\ClientStreamApp.csproj|solutionrelative:clientstreamapp\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -43,14 +40,14 @@
               "RelativeDocumentMoniker": "ClientStreamApp\\Form1.Designer.cs",
               "ToolTip": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\Form1.Designer.cs",
               "RelativeToolTip": "ClientStreamApp\\Form1.Designer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAgwA8AAAAyAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-21T11:55:21.556Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "Form1.cs [Design]",
               "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\Form1.cs",
               "RelativeDocumentMoniker": "ClientStreamApp\\Form1.cs",
@@ -74,18 +71,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "User.cs",
-              "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\project ch\u00EDnh\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\Models\\User.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\project ch\u00EDnh\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\Models\\User.cs",
-              "ToolTip": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\project ch\u00EDnh\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\Models\\User.cs",
-              "RelativeToolTip": "..\\..\\..\\project ch\u00EDnh\\LAN_Streaming_Video\\ServerStreamApp\\ServerStreamApp\\Models\\User.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAA8AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-28T02:38:28.76Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "LoginForm.cs",
               "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ClientStreamApp\\ClientStreamApp\\LoginForm.cs",
               "RelativeDocumentMoniker": "ClientStreamApp\\LoginForm.cs",

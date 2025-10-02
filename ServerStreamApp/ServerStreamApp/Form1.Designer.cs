@@ -25,7 +25,7 @@
             chatBox = new TextBox();
             clientBox = new TextBox();
             statusLabel = new Label();
-            saveLog = new Button();
+            numClient = new Label();
             SuspendLayout();
             // 
             // disconnectButton
@@ -118,25 +118,25 @@
             statusLabel.TabIndex = 8;
             statusLabel.Text = "Trạng thái: Chưa kết nối";
             // 
-            // saveLog
+            // numClient
             // 
-            saveLog.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            saveLog.BackColor = SystemColors.ActiveCaption;
-            saveLog.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            saveLog.Location = new Point(905, 10);
-            saveLog.Name = "saveLog";
-            saveLog.Size = new Size(126, 34);
-            saveLog.TabIndex = 9;
-            saveLog.Text = "Lưu nhật ký";
-            saveLog.UseVisualStyleBackColor = false;
-            saveLog.Click += saveLog_Click;
+            numClient.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            numClient.AutoSize = true;
+            numClient.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            numClient.ForeColor = Color.DarkBlue;
+            numClient.Location = new Point(842, 20);
+            numClient.Name = "numClient";
+            numClient.Size = new Size(127, 20);
+            numClient.TabIndex = 10;
+            numClient.Text = "Số lượng kết nối:";
+            numClient.Click += label1_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1267, 751);
-            Controls.Add(saveLog);
+            Controls.Add(numClient);
             Controls.Add(statusLabel);
             Controls.Add(clientBox);
             Controls.Add(chatBox);
@@ -163,6 +163,6 @@
         private TextBox chatBox;
         private TextBox clientBox;
         private Label statusLabel;
-        private Button saveLog;
+        private Label numClient;
     }
 }

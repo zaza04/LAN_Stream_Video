@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\serverstreamapp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|solutionrelative:serverstreamapp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|d:\\study\\h\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\l\u1EADp tr\u00ECnh m\u1EA1ng\\streamapp\\github\\serverstreamapp\\serverstreamapp\\data\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|solutionrelative:serverstreamapp\\data\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|d:\\study\\h\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\l\u1EADp tr\u00ECnh m\u1EA1ng\\streamapp\\github\\serverstreamapp\\serverstreamapp\\models\\activitylog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|solutionrelative:serverstreamapp\\models\\activitylog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -11,12 +19,8 @@
       "RelativeMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|solutionrelative:serverstreamapp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\serverstreamapp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|solutionrelative:serverstreamapp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|d:\\study\\h\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\l\u1EADp tr\u00ECnh m\u1EA1ng\\streamapp\\github\\serverstreamapp\\serverstreamapp\\data\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|solutionrelative:serverstreamapp\\data\\databasehelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|d:\\study\\h\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\l\u1EADp tr\u00ECnh m\u1EA1ng\\streamapp\\github\\serverstreamapp\\serverstreamapp\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{50D37CBD-5557-47FF-9EA9-5BD1A59E2468}|ServerStreamApp\\ServerStreamApp.csproj|solutionrelative:serverstreamapp\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,28 +30,55 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 5,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.cs",
+              "RelativeDocumentMoniker": "ServerStreamApp\\Form1.cs",
+              "ToolTip": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.cs",
+              "RelativeToolTip": "ServerStreamApp\\Form1.cs",
+              "ViewState": "AgIAAEgFAAAAAAAAAIA9wEoFAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-19T10:10:02.154Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "ServerStreamApp\\Form1.Designer.cs",
+              "ToolTip": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.Designer.cs",
+              "RelativeToolTip": "ServerStreamApp\\Form1.Designer.cs",
+              "ViewState": "AgIAAG4AAAAAAAAAAIAwwHgAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-02T03:54:12.31Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "ActivityLog.cs",
               "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Models\\ActivityLog.cs",
               "RelativeDocumentMoniker": "ServerStreamApp\\Models\\ActivityLog.cs",
               "ToolTip": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Models\\ActivityLog.cs",
               "RelativeToolTip": "ServerStreamApp\\Models\\ActivityLog.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAOAAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwAgAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-01T13:27:32.267Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "DatabaseHelper.cs",
               "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Data\\DatabaseHelper.cs",
               "RelativeDocumentMoniker": "ServerStreamApp\\Data\\DatabaseHelper.cs",
@@ -55,31 +86,20 @@
               "RelativeToolTip": "ServerStreamApp\\Data\\DatabaseHelper.cs",
               "ViewState": "AgIAAGEAAAAAAAAAAAAEwIIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-29T12:26:57.277Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Form1.cs",
-              "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.cs",
-              "RelativeDocumentMoniker": "ServerStreamApp\\Form1.cs",
-              "ToolTip": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.cs",
-              "RelativeToolTip": "ServerStreamApp\\Form1.cs",
-              "ViewState": "AgIAAOoCAAAAAAAAAAAAAAEDAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-19T10:10:02.154Z",
+              "WhenOpened": "2025-09-29T12:26:57.277Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "Form1.cs [Design]",
               "DocumentMoniker": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.cs",
               "RelativeDocumentMoniker": "ServerStreamApp\\Form1.cs",
               "ToolTip": "D:\\Study\\H\u1ECDc t\u1EADp t\u1ED1t, lao \u0111\u1ED9ng t\u1ED1t\\L\u1EADp tr\u00ECnh m\u1EA1ng\\StreamApp\\github\\ServerStreamApp\\ServerStreamApp\\Form1.cs [Design]",
               "RelativeToolTip": "ServerStreamApp\\Form1.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-19T10:07:45.556Z"
+              "WhenOpened": "2025-09-19T10:07:45.556Z",
+              "EditorCaption": " [Design]"
             }
           ]
         }

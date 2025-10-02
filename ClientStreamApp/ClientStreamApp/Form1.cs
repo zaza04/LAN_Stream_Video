@@ -24,6 +24,10 @@ namespace ClientStreamApp
         private List<byte[]> recordedFrames = new List<byte[]>();
         private DateTime recordingStartTime;
 
+        // Encryption properties
+        public string AESKey { get; private set; } = "";
+        public bool EncryptionEnabled { get; private set; } = false;
+
 
         public Form1()
         {
@@ -62,15 +66,45 @@ namespace ClientStreamApp
                     this.CurrentUsername = loginForm.Username;
                     this.CurrentUserId = loginForm.UserId;
                     this.authToken = loginForm.AuthToken;
+                    
+                    // Lưu thông tin encryption
+                    this.AESKey = loginForm.AESKey;
+                    this.EncryptionEnabled = loginForm.EncryptionEnabled;
 
                     // Cập nhật tiêu đề cửa sổ
-                    this.Text = $"Video Client - {CurrentUsername}";
+                    var encryptionStatus = EncryptionEnabled ? "🔐" : "🔓";
+                    this.Text = $"Video Client - {CurrentUsername} {encryptionStatus}";
+                    
+                    // Initialize encryption logging
+                    if (EncryptionEnabled)
+                    {
+                        EncryptionHelper.OnLogMessage += LogEncryptionMessage;
+                        LogEncryptionMessage($"✅ Client encryption initialized - AES Key available");
+                    }
 
                     return true;
                 }
 
                 return false;
             }
+        }
+        
+        private void LogEncryptionMessage(string message)
+        {
+            // Filter out verbose logs
+            if (message.Contains("Bắt đầu") || 
+                message.Contains("thành công - Input:") || 
+                message.Contains("thành công - Original:") ||
+                message.Contains("Đã trích xuất IV") ||
+                message.Contains("Đã tạo IV mới") ||
+                message.Contains("IV length:") ||
+                message.Contains("Cipher length:"))
+            {
+                return;
+            }
+            
+            Console.WriteLine($"[CLIENT-ENCRYPTION] {message}");
+            // Có thể thêm vào chat box nếu cần
         }
 
         // Thêm các thuộc tính này vào Form1
@@ -307,11 +341,37 @@ namespace ClientStreamApp
                 try
                 {
                     // Hiển thị tin nhắn trên giao diện client
-                    chatTextBox.AppendText($"[{DateTime.Now:HH:mm:ss}] You: {message}\r\n");
+                    var encryptionIndicator = EncryptionEnabled ? "🔐" : "🔓";
+                    chatTextBox.AppendText($"[{DateTime.Now:HH:mm:ss}] You {encryptionIndicator}: {message}\r\n");
 
                     // Định dạng tin nhắn theo chuẩn server yêu cầu: [CHAT][Tên][Nội dung]
                     string chatMessage = $"[CHAT][{CurrentUsername}][{message}]";
-                    byte[] messageData = Encoding.UTF8.GetBytes(chatMessage);
+                    byte[] messageData;
+
+                    // Mã hóa tin nhắn nếu encryption được bật
+                    if (EncryptionEnabled && !string.IsNullOrEmpty(AESKey))
+                    {
+                        try
+                        {
+                            // Mã hóa tin nhắn chat
+                            string encryptedMessage = EncryptionHelper.AESEncrypt(chatMessage, AESKey);
+                            string finalMessage = $"[ENCRYPTED_CHAT]{encryptedMessage}";
+                            messageData = Encoding.UTF8.GetBytes(finalMessage);
+                            
+                            LogEncryptionMessage($"💬 Encrypted chat sent - Original: {chatMessage.Length}b, Encrypted: {finalMessage.Length}b");
+                        }
+                        catch (Exception encEx)
+                        {
+                            LogEncryptionMessage($"❌ Chat encryption failed: {encEx.Message}");
+                            // Fallback to unencrypted
+                            messageData = Encoding.UTF8.GetBytes(chatMessage);
+                        }
+                    }
+                    else
+                    {
+                        // Tin nhắn không mã hóa
+                        messageData = Encoding.UTF8.GetBytes(chatMessage);
+                    }
 
                     // Gửi tin nhắn đến server
                     await udpClient.SendAsync(messageData, messageData.Length);
@@ -359,21 +419,110 @@ namespace ClientStreamApp
             {
                 string fullMessage = Encoding.UTF8.GetString(data);
 
-                // Kiểm tra loại tin nhắn trước
-                if (fullMessage.StartsWith("[CHAT]"))
+                // Kiểm tra xem có phải dữ liệu mã hóa không
+                if (fullMessage.StartsWith("[ENCRYPTED_CHAT]"))
                 {
-                    // Xử lý tin nhắn chat
+                    // Xử lý tin nhắn chat đã mã hóa
+                    ProcessEncryptedChatMessage(fullMessage);
+                }
+                else if (fullMessage.StartsWith("[ENCRYPTED_FRAME]"))
+                {
+                    // Xử lý frame video đã mã hóa
+                    ProcessEncryptedVideoFrame(data);
+                }
+                else if (fullMessage.StartsWith("[CHAT]"))
+                {
+                    // Xử lý tin nhắn chat không mã hóa
                     ProcessChatMessage(fullMessage);
                 }
                 else if (fullMessage.StartsWith("[FRAME]"))
                 {
-                    // Xử lý frame video
+                    // Xử lý frame video không mã hóa
                     ProcessVideoFrame(data);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Process data error: {ex.Message}");
+            }
+        }
+
+        private void ProcessEncryptedChatMessage(string encryptedMessage)
+        {
+            if (!EncryptionEnabled || string.IsNullOrEmpty(AESKey))
+            {
+                LogEncryptionMessage("❌ Nhận encrypted chat nhưng không có khóa AES");
+                return;
+            }
+
+            try
+            {
+                // Trích xuất phần mã hóa từ message
+                string encryptedContent = encryptedMessage.Substring("[ENCRYPTED_CHAT]".Length);
+                
+                // Giải mã tin nhắn
+                string decryptedMessage = EncryptionHelper.AESDecrypt(encryptedContent, AESKey);
+                
+                LogEncryptionMessage($"💬 Decrypted chat message received");
+                
+                // Xử lý tin nhắn đã giải mã
+                ProcessChatMessage(decryptedMessage);
+            }
+            catch (Exception ex)
+            {
+                LogEncryptionMessage($"❌ Lỗi giải mã tin nhắn chat: {ex.Message}");
+            }
+        }
+
+        private void ProcessEncryptedVideoFrame(byte[] data)
+        {
+            if (!EncryptionEnabled || string.IsNullOrEmpty(AESKey))
+            {
+                LogEncryptionMessage("❌ Nhận encrypted frame nhưng không có khóa AES");
+                return;
+            }
+
+            try
+            {
+                string dataString = Encoding.UTF8.GetString(data);
+                
+                // Parse header: [ENCRYPTED_FRAME][header_length]
+                var headerEndIndex = dataString.IndexOf(']', "[ENCRYPTED_FRAME][".Length);
+                if (headerEndIndex == -1) return;
+                
+                var headerLengthStr = dataString.Substring("[ENCRYPTED_FRAME][".Length, 
+                    headerEndIndex - "[ENCRYPTED_FRAME][".Length);
+                
+                if (!int.TryParse(headerLengthStr, out int originalHeaderLength)) return;
+                
+                // Tính toán vị trí các phần
+                int encryptedHeaderStart = "[ENCRYPTED_FRAME][".Length + headerLengthStr.Length + 1; // +1 cho ']'
+                int encryptedDataStart = encryptedHeaderStart + originalHeaderLength;
+                
+                // Trích xuất header gốc
+                byte[] originalHeader = new byte[originalHeaderLength];
+                Buffer.BlockCopy(data, encryptedHeaderStart, originalHeader, 0, originalHeaderLength);
+                
+                // Trích xuất dữ liệu mã hóa
+                byte[] encryptedFrameData = new byte[data.Length - encryptedDataStart];
+                Buffer.BlockCopy(data, encryptedDataStart, encryptedFrameData, 0, encryptedFrameData.Length);
+                
+                // Giải mã frame data
+                byte[] decryptedFrameData = EncryptionHelper.AESDecryptBytes(encryptedFrameData, AESKey);
+                
+                // Tạo lại packet gốc
+                byte[] originalPacket = new byte[originalHeader.Length + decryptedFrameData.Length];
+                Buffer.BlockCopy(originalHeader, 0, originalPacket, 0, originalHeader.Length);
+                Buffer.BlockCopy(decryptedFrameData, 0, originalPacket, originalHeader.Length, decryptedFrameData.Length);
+                
+                LogEncryptionMessage($"📹 Decrypted frame - Encrypted: {encryptedFrameData.Length}b, Decrypted: {decryptedFrameData.Length}b");
+                
+                // Xử lý frame đã giải mã
+                ProcessVideoFrame(originalPacket);
+            }
+            catch (Exception ex)
+            {
+                LogEncryptionMessage($"❌ Lỗi giải mã video frame: {ex.Message}");
             }
         }
 
@@ -398,10 +547,18 @@ namespace ClientStreamApp
                 if (content.EndsWith("]"))
                     content = content.Substring(0, content.Length - 1);
 
-                // Hiển thị tin nhắn
+                // Hiển thị tin nhắn với encryption indicator nếu có
                 this.Invoke(new Action(() =>
                 {
-                    chatTextBox.AppendText($"[{DateTime.Now:HH:mm:ss}] {sender}: {content}\r\n");
+                    // Kiểm tra xem có phải tin nhắn từ server với encryption indicator không
+                    var encryptionIndicator = "";
+                    if (sender.StartsWith("🔐 "))
+                    {
+                        sender = sender.Substring(2); // Remove encryption indicator from sender name
+                        encryptionIndicator = "🔐 ";
+                    }
+                    
+                    chatTextBox.AppendText($"[{DateTime.Now:HH:mm:ss}] {encryptionIndicator}{sender}: {content}\r\n");
                     chatTextBox.ScrollToCaret();
                 }));
             }

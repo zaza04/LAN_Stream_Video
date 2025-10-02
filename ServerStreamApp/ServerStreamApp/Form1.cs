@@ -34,12 +34,17 @@ namespace ServerStreamApp
         private Dictionary<string, User> authenticatedUsersByToken = new Dictionary<string, User>();
         private Dictionary<IPEndPoint, User> streamingClients = new Dictionary<IPEndPoint, User>();
 
+        // Encryption management
+        private Dictionary<IPEndPoint, string> clientAESKeys = new Dictionary<IPEndPoint, string>();
+        private Dictionary<string, string> tokenAESKeys = new Dictionary<string, string>(); // token -> AES key
+        private readonly object encryptionLock = new object();
+
         // Thêm biến này để định danh server
         private readonly string ServerName = "Server";
 
-        // Save Log
-        private Timer saveLogTimer;
-        private List<string> authenticationLogs = new List<string>();
+        // Save Log - REMOVED (integrated into database)
+        // private Timer saveLogTimer;
+        // private List<string> authenticationLogs = new List<string>();
 
         private class ClientStats
         {
@@ -64,6 +69,139 @@ namespace ServerStreamApp
             InitializeVideoCapture();
             jpegEncoder = GetJpegEncoder();
             chatBox.Clear();
+            InitializeEncryption();
+            UpdateClientCount(); // Initialize client count display
+        }
+
+        private void InitializeEncryption()
+        {
+            try
+            {
+                // Không subscribe to encryption logging để tránh spam
+                // EncryptionHelper.OnLogMessage += LogEncryptionMessage;
+                AppendClientBoxLog("🔐 Encryption system initialized");
+            }
+            catch (Exception ex)
+            {
+                AppendClientBoxLog($"❌ Encryption initialization failed: {ex.Message}");
+            }
+        }
+
+        private void LogEncryptionMessage(string message)
+        {
+            // Chỉ log những sự kiện quan trọng, bỏ qua chi tiết verbose
+            if (message.Contains("Bắt đầu") ||
+                message.Contains("thành công - Input:") ||
+                message.Contains("thành công - Original:") ||
+                message.Contains("Encrypted frame sent") ||
+                message.Contains("Encrypted chat sent") ||
+                message.Contains("Decrypted") ||
+                message.Contains("Frame encryption failed") ||
+                message.Contains("Chat encryption failed") ||
+                message.Contains("linked to new endpoint") ||
+                message.Contains("Đã trích xuất IV") ||
+                message.Contains("Đã tạo IV mới") ||
+                message.Contains("IV length:") ||
+                message.Contains("Cipher length:"))
+            {
+                // Bỏ qua các log chi tiết này
+                return;
+            }
+
+            // Log encryption events to clientBox instead of chatBox
+            AppendClientBoxLog($"[ENCRYPTION] {message}");
+        }
+
+        // Method để cập nhật số lượng client kết nối
+        private void UpdateClientCount()
+        {
+            if (numClient.InvokeRequired)
+            {
+                numClient.Invoke(new Action(UpdateClientCount));
+                return;
+            }
+
+            int connectedCount = 0;
+
+            lock (clientLock)
+            {
+                connectedCount = connectedClients.Count;
+            }
+
+            numClient.Text = $"Số client kết nối: {connectedCount}";
+        }
+
+        // Method để cleanup encryption keys khi client disconnect
+        private void CleanupClientEncryption(IPEndPoint clientEndPoint)
+        {
+            lock (encryptionLock)
+            {
+                if (clientAESKeys.ContainsKey(clientEndPoint))
+                {
+                    clientAESKeys.Remove(clientEndPoint);
+                    LogEncryptionMessage($"🗑️ Encryption cleaned for {clientEndPoint}");
+                }
+            }
+        }
+
+        // Method để cleanup token-based encryption keys khi logout
+        private void CleanupTokenEncryption(string token)
+        {
+            lock (encryptionLock)
+            {
+                if (tokenAESKeys.ContainsKey(token))
+                {
+                    tokenAESKeys.Remove(token);
+                    LogEncryptionMessage($"🗑️ Token encryption cleaned: {token}");
+                }
+            }
+        }
+
+        // Method để xử lý encrypted chat từ client
+        private void ProcessEncryptedChatFromClient(IPEndPoint sender, string encryptedMessage)
+        {
+            try
+            {
+                // Kiểm tra xem client có AES key không
+                string aesKey = null;
+                lock (encryptionLock)
+                {
+                    if (!clientAESKeys.TryGetValue(sender, out aesKey))
+                    {
+                        LogEncryptionMessage($"❌ No encryption key for {sender}");
+                        return;
+                    }
+                }
+
+                // Trích xuất phần encrypted content
+                string encryptedContent = encryptedMessage.Substring("[ENCRYPTED_CHAT]".Length);
+
+                // Giải mã tin nhắn
+                string decryptedMessage = EncryptionHelper.AESDecrypt(encryptedContent, aesKey);
+
+                // Parse decrypted message: [CHAT][Username][Content]
+                string[] parts = decryptedMessage.Split(new[] { "][" }, StringSplitOptions.None);
+                if (parts.Length >= 3)
+                {
+                    // Format: [CHAT][Client][Nội dung]
+                    string clientInfo = parts[1].TrimEnd(']');
+                    string content = decryptedMessage.Substring(decryptedMessage.IndexOf(parts[2].TrimStart('[')));
+                    if (content.EndsWith("]")) content = content.Substring(0, content.Length - 1);
+
+                    // Hiển thị tin nhắn trong chatBox với encryption indicator
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        AppendLog($"🔐 {clientInfo}: {content}");
+                    }));
+
+                    // Gửi lại tin nhắn này đến tất cả client khác
+                    BroadcastChatMessage(sender, clientInfo, content);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogEncryptionMessage($"❌ Chat decryption failed for {sender}: {ex.Message}");
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -92,7 +230,7 @@ namespace ServerStreamApp
                     UdpReceiveResult result = await udpServer.ReceiveAsync();
                     string message = Encoding.UTF8.GetString(result.Buffer).Trim();
 
-                    // XỬ LÝ AUTHENTICATION REQUEST từ client
+                    // XỬ LÝ AUTHENTICATION REQUEST từ client  
                     if (message.Contains("AUTH_REQUEST"))
                     {
                         await ProcessAuthRequest(result.RemoteEndPoint, message);
@@ -100,7 +238,12 @@ namespace ServerStreamApp
                     }
 
                     // Giữ nguyên các chức năng khác
-                    if (message.StartsWith("[CHAT]"))
+                    if (message.StartsWith("[ENCRYPTED_CHAT]"))
+                    {
+                        // Xử lý tin nhắn chat đã mã hóa từ client
+                        ProcessEncryptedChatFromClient(result.RemoteEndPoint, message);
+                    }
+                    else if (message.StartsWith("[CHAT]"))
                     {
                         // Phân tích cú pháp tin nhắn
                         string[] parts = message.Split(new[] { "][" }, StringSplitOptions.None);
@@ -133,6 +276,17 @@ namespace ServerStreamApp
                             {
                                 // Xác thực bằng token thành công, gán user cho endpoint mới này
                                 streamingClients[result.RemoteEndPoint] = user;
+                            }
+                        }
+
+                        // Liên kết AES key với endpoint mới nếu có
+                        lock (encryptionLock)
+                        {
+                            if (tokenAESKeys.TryGetValue(token, out string aesKey))
+                            {
+                                clientAESKeys[result.RemoteEndPoint] = aesKey;
+                                // Chỉ log một lần khi user đầu tiên connect với encryption
+                                // LogEncryptionMessage($"🔗 Encryption linked to new endpoint {result.RemoteEndPoint}");
                             }
                         }
 
@@ -211,7 +365,7 @@ namespace ServerStreamApp
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 var authRequest = JsonSerializer.Deserialize<AuthMessage>(message, options);
 
-                if (authRequest != null && authRequest.Type == "AUTH_REQUEST")
+                if (authRequest != null && (authRequest.Type == "AUTH_REQUEST" || authRequest.Type == "AUTH_REQUEST_ENCRYPTED"))
                 {
                     // Sử dụng DatabaseHelper để xác thực
                     var dbHelper = new DatabaseHelper();
@@ -226,12 +380,47 @@ namespace ServerStreamApp
                         authResponse.Type = "AUTH_SUCCESS";
                         authResponse.Username = user.Username;
                         authResponse.UserId = user.UserId;
-                        authResponse.Token = token; // Gửi token về cho client
+                        authResponse.Token = token;
                         authResponse.Message = "Authentication successful";
+
+                        // Xử lý mã hóa nếu client yêu cầu
+                        if (authRequest.Type == "AUTH_REQUEST_ENCRYPTED" && !string.IsNullOrEmpty(authRequest.PublicKey))
+                        {
+                            try
+                            {
+                                LogEncryptionMessage($"🔐 Encryption setup for {clientEndPoint}");
+
+                                // Tạo khóa AES cho client này
+                                string aesKey = EncryptionHelper.GenerateAESKey();
+
+                                // Mã hóa khóa AES bằng public key của client
+                                string encryptedAESKey = EncryptionHelper.RSAEncrypt(aesKey, authRequest.PublicKey);
+
+                                // Lưu khóa AES cho client này
+                                lock (encryptionLock)
+                                {
+                                    clientAESKeys[clientEndPoint] = aesKey;
+                                    tokenAESKeys[token] = aesKey; // Lưu theo token để persistent
+                                }
+
+                                // Thêm thông tin mã hóa vào response
+                                authResponse.EncryptedAESKey = encryptedAESKey;
+                                authResponse.KeyExchangeStep = "SERVER_ENCRYPTED_AES_KEY";
+                                authResponse.IsEncrypted = true;
+
+                                LogEncryptionMessage($"✅ Encrypted connection ready for {clientEndPoint}");
+                                authResponse.Message = "Authentication successful with encryption";
+                            }
+                            catch (Exception encEx)
+                            {
+                                LogEncryptionMessage($"❌ Encryption setup failed for {clientEndPoint}: {encEx.Message}");
+                                authResponse.Message = "Authentication successful but encryption setup failed";
+                            }
+                        }
 
                         // Log login vào database
                         dbHelper.LogLogin(user.UserId, clientEndPoint.Address.ToString());
-                        
+
                         // Log activity LOGIN
                         dbHelper.LogActivity(ActivityType.LOGIN, user, clientEndPoint.Address.ToString());
 
@@ -337,42 +526,34 @@ namespace ServerStreamApp
                 return;
             }
 
+            // Update client count label
+            UpdateClientCount();
+
+            // clientBox now only shows encryption logs and technical info
+            // Basic client info is moved to dedicated method
             StringBuilder sb = new StringBuilder();
-
-            lock (clientLock)
-            {
-                sb.AppendLine($"Trạng thái: {(isStreaming ? "Đang phát" : "Đã dừng")}");
-                sb.AppendLine($"Cổng UDP: {udpPort}");
-                sb.AppendLine($"Số client kết nối: {connectedClients.Count}");
-                sb.AppendLine();
-
-                if (connectedClients.Count > 0)
-                {
-                    //sb.AppendLine("DANH SÁCH CLIENT");
-                    foreach (var client in connectedClients)
-                    {
-                        if (streamingClients.TryGetValue(client, out User user))
-                        {
-                            //sb.AppendLine($"• User: {user.Username} (ID: {user.UserId})");
-                            //sb.AppendLine($"  - IP: {client.Address}:{client.Port}");
-                            sb.AppendLine();
-                        }
-                        else
-                        {
-                            sb.AppendLine($"• Client: {client.Address}:{client.Port}");
-                            if (clientStats.TryGetValue(client, out ClientStats stats))
-                            {
-                                sb.AppendLine($"  - Kết nối lúc: {stats.ConnectTime:HH:mm:ss}");
-                                sb.AppendLine($"  - Dữ liệu đã gửi: {stats.BytesSent / 1024} KB");
-                            }
-                            sb.AppendLine("  - Chưa xác thực");
-                            sb.AppendLine();
-                        }
-                    }
-                }
-            }
+            sb.AppendLine("=== ENCRYPTION & TECHNICAL LOGS ===");
+            sb.AppendLine($"Server Status: {(isStreaming ? "Running" : "Stopped")}");
+            sb.AppendLine($"UDP Port: {udpPort}");
+            sb.AppendLine();
 
             clientBox.Text = sb.ToString();
+        }
+
+        // New method to append encryption logs to clientBox
+        private void AppendClientBoxLog(string message)
+        {
+            if (clientBox.InvokeRequired)
+            {
+                clientBox.Invoke(new Action(() => AppendClientBoxLog(message)));
+                return;
+            }
+
+            clientBox.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}{Environment.NewLine}");
+            
+            // Auto-scroll to bottom
+            clientBox.SelectionStart = clientBox.Text.Length;
+            clientBox.ScrollToCaret();
         }
 
         private void SetupControls()
@@ -601,29 +782,107 @@ namespace ServerStreamApp
                     int offset = i * maxPacketSize;
                     int size = Math.Min(maxPacketSize, imageBytes.Length - offset);
 
-                    byte[] header = Encoding.UTF8.GetBytes($"[FRAME][{frameId}][{i}][{totalPackets}]");
-                    byte[] packet = new byte[header.Length + size];
-                    Buffer.BlockCopy(header, 0, packet, 0, header.Length);
-                    Buffer.BlockCopy(imageBytes, offset, packet, header.Length, size);
+                    byte[] frameData = new byte[size];
+                    Buffer.BlockCopy(imageBytes, offset, frameData, 0, size);
 
-                    SendPacketToClients(packet, clients, failedClients);
+                    byte[] header = Encoding.UTF8.GetBytes($"[FRAME][{frameId}][{i}][{totalPackets}]");
+
+                    // Mã hóa frame data cho từng client riêng biệt
+                    SendEncryptedFrameToClients(header, frameData, clients, failedClients);
                 }
             }
             else
             {
                 // Gửi frame nhỏ trực tiếp
                 byte[] header = Encoding.UTF8.GetBytes($"[FRAME][{frameId}][0][1]");
-                byte[] packet = new byte[header.Length + imageBytes.Length];
-                Buffer.BlockCopy(header, 0, packet, 0, header.Length);
-                Buffer.BlockCopy(imageBytes, 0, packet, header.Length, imageBytes.Length);
 
-                SendPacketToClients(packet, clients, failedClients);
+                // Mã hóa frame data cho từng client riêng biệt
+                SendEncryptedFrameToClients(header, imageBytes, clients, failedClients);
             }
 
             // Xử lý các client thất bại sau khi gửi
             if (failedClients.Count > 0)
             {
                 RemoveFailedClients(failedClients);
+            }
+        }
+
+        // Method mới để gửi encrypted frame data
+        private void SendEncryptedFrameToClients(byte[] header, byte[] frameData, List<IPEndPoint> clients, List<IPEndPoint> failedClients)
+        {
+            foreach (var client in clients)
+            {
+                try
+                {
+                    if (udpServer != null && isStreaming)
+                    {
+                        byte[] finalPacket;
+
+                        // Kiểm tra xem client có sử dụng mã hóa không
+                        lock (encryptionLock)
+                        {
+                            if (clientAESKeys.ContainsKey(client))
+                            {
+                                // Client sử dụng mã hóa
+                                var aesKey = clientAESKeys[client];
+
+                                try
+                                {
+                                    // Mã hóa frame data
+                                    var encryptedFrameData = EncryptionHelper.AESEncryptBytes(frameData, aesKey);
+
+                                    // Tạo header cho encrypted data
+                                    byte[] encryptedHeader = Encoding.UTF8.GetBytes($"[ENCRYPTED_FRAME][{header.Length}]");
+
+                                    // Tạo packet: [ENCRYPTED_FRAME][header_length] + original_header + encrypted_data
+                                    finalPacket = new byte[encryptedHeader.Length + header.Length + encryptedFrameData.Length];
+                                    Buffer.BlockCopy(encryptedHeader, 0, finalPacket, 0, encryptedHeader.Length);
+                                    Buffer.BlockCopy(header, 0, finalPacket, encryptedHeader.Length, header.Length);
+                                    Buffer.BlockCopy(encryptedFrameData, 0, finalPacket, encryptedHeader.Length + header.Length, encryptedFrameData.Length);
+
+                                    LogEncryptionMessage($"📹 Encrypted frame sent to {client} - Original: {frameData.Length}b, Encrypted: {encryptedFrameData.Length}b");
+                                }
+                                catch (Exception encEx)
+                                {
+                                    LogEncryptionMessage($"❌ Frame encryption failed for {client}: {encEx.Message}");
+                                    // Fallback to unencrypted
+                                    finalPacket = new byte[header.Length + frameData.Length];
+                                    Buffer.BlockCopy(header, 0, finalPacket, 0, header.Length);
+                                    Buffer.BlockCopy(frameData, 0, finalPacket, header.Length, frameData.Length);
+                                }
+                            }
+                            else
+                            {
+                                // Client không sử dụng mã hóa
+                                finalPacket = new byte[header.Length + frameData.Length];
+                                Buffer.BlockCopy(header, 0, finalPacket, 0, header.Length);
+                                Buffer.BlockCopy(frameData, 0, finalPacket, header.Length, frameData.Length);
+                            }
+                        }
+
+                        udpServer.Send(finalPacket, finalPacket.Length, client);
+
+                        // Cập nhật thống kê lưu lượng
+                        lock (clientLock)
+                        {
+                            if (!clientStats.ContainsKey(client))
+                            {
+                                clientStats[client] = new ClientStats();
+                            }
+
+                            clientStats[client].BytesSent += finalPacket.Length;
+                            clientStats[client].PacketsSent++;
+                            clientStats[client].LastActivity = DateTime.Now;
+                        }
+                    }
+                }
+                catch
+                {
+                    if (!failedClients.Contains(client))
+                    {
+                        failedClients.Add(client);
+                    }
+                }
             }
         }
 
@@ -675,7 +934,14 @@ namespace ServerStreamApp
                 {
                     connectedClients.Remove(client);
                     clientStats.Remove(client);
+                    streamingClients.Remove(client); // Cleanup streaming clients
                 }
+            }
+
+            // Cleanup encryption keys for disconnected clients
+            foreach (var client in failedClients)
+            {
+                CleanupClientEncryption(client);
             }
 
             // Sử dụng BeginInvoke bên ngoài khối lock
@@ -683,11 +949,11 @@ namespace ServerStreamApp
             {
                 this.BeginInvoke(new Action(() =>
                 {
-                    // Xóa phần log lỗi ở đây
-                    // foreach (var client in failedClients)
-                    // {
-                    //     AppendLog($"Lỗi gửi đến client {client}, đã xóa");
-                    // }
+                    // Log client disconnections
+                    foreach (var client in failedClients)
+                    {
+                        AppendLog($"🔌 Client {client} đã ngắt kết nối");
+                    }
                     UpdateClientStats(); // Chỉ cập nhật clientBox
                 }));
             }
@@ -729,14 +995,7 @@ namespace ServerStreamApp
                     var dbHelper = new DatabaseHelper();
                     dbHelper.LogActivity(ActivityType.SERVER_START, (int?)null, "127.0.0.1");
 
-                    if (saveLogTimer == null)
-                    {
-                        saveLogTimer = new Timer();
-                        saveLogTimer.Interval = 500; // 500ms
-                        saveLogTimer.Tick += (s, ev) => { saveLog.Enabled = true; saveLogTimer.Stop(); };
-                    }
-                    saveLog.Enabled = false;
-                    saveLogTimer.Start();
+                    // saveLogTimer and saveLog functionality removed - using database logging
 
                     disconnectButton.Enabled = true;
                 }
@@ -768,8 +1027,7 @@ namespace ServerStreamApp
                     var dbHelper = new DatabaseHelper();
                     dbHelper.LogActivity(ActivityType.SERVER_STOP, (int?)null, "127.0.0.1");
 
-                    // Disable saveLog khi server dừng
-                    saveLog.Enabled = false;
+                    // saveLog functionality removed - using database logging
 
                     connectButton.Enabled = true;
                     disconnectButton.Enabled = false;
@@ -810,17 +1068,20 @@ namespace ServerStreamApp
                 return;
             }
 
+            // Filter: Only log connection, authentication, and chat messages to chatBox
+            // Technical/encryption logs go to clientBox instead
+            if (message.Contains("[ENCRYPTION]") || 
+                message.Contains("🔐 Encryption") ||
+                message.Contains("❌ Encryption") ||
+                message.Contains("✅ Encrypted"))
+            {
+                // Redirect encryption logs to clientBox
+                AppendClientBoxLog(message);
+                return;
+            }
+
             chatBox.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}{Environment.NewLine}");
             chatBox.ScrollToCaret();
-
-            // Lưu log xác thực vào danh sách
-            if (message.Contains("User authenticated:") ||
-                message.Contains("Authentication failed for:") ||
-                message.Contains("đã kết nối") ||
-                message.Contains("đã ngắt kết nối"))
-            {
-                authenticationLogs.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
-            }
         }
 
         private void InitializeUdpServer()
@@ -1019,7 +1280,6 @@ namespace ServerStreamApp
                 {
                     // Định dạng tin nhắn để gửi đến client
                     string broadcastMessage = $"[CHAT][{senderName}][{content}]";
-                    byte[] data = Encoding.UTF8.GetBytes(broadcastMessage);
 
                     // Gửi đến tất cả client ngoại trừ người gửi
                     foreach (var client in clientsCopy.Where(c => !c.Equals(sender)))
@@ -1028,8 +1288,40 @@ namespace ServerStreamApp
                         {
                             if (udpServer != null && isStreaming)
                             {
-                                udpServer.Send(data, data.Length, client);
+                                byte[] data;
 
+                                // Kiểm tra xem client có sử dụng mã hóa không
+                                lock (encryptionLock)
+                                {
+                                    if (clientAESKeys.ContainsKey(client))
+                                    {
+                                        // Client sử dụng mã hóa
+                                        var aesKey = clientAESKeys[client];
+
+                                        try
+                                        {
+                                            // Mã hóa tin nhắn chat
+                                            var encryptedMessage = EncryptionHelper.AESEncrypt(broadcastMessage, aesKey);
+                                            var finalMessage = $"[ENCRYPTED_CHAT]{encryptedMessage}";
+                                            data = Encoding.UTF8.GetBytes(finalMessage);
+
+                                            LogEncryptionMessage($"💬 Encrypted chat sent to {client} - Sender: {senderName}");
+                                        }
+                                        catch (Exception encEx)
+                                        {
+                                            LogEncryptionMessage($"❌ Chat encryption failed for {client}: {encEx.Message}");
+                                            // Fallback to unencrypted
+                                            data = Encoding.UTF8.GetBytes(broadcastMessage);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Client không sử dụng mã hóa
+                                        data = Encoding.UTF8.GetBytes(broadcastMessage);
+                                    }
+                                }
+
+                                udpServer.Send(data, data.Length, client);
 
                                 lock (clientLock)
                                 {
@@ -1051,55 +1343,16 @@ namespace ServerStreamApp
             }
             catch (Exception ex)
             {
-                this.BeginInvoke(new Action(() => AppendLog($"Lỗi gửi tin nhắn: {ex.Message}")));
+                this.BeginInvoke(new Action(() =>
+                {
+                    AppendLog($"Lỗi broadcast chat: {ex.Message}");
+                }));
             }
         }
 
-        private void saveLog_Click(object sender, EventArgs e)
+        private void label1_Click(object sender, EventArgs e)
         {
-            if (authenticationLogs.Count == 0)
-            {
-                MessageBox.Show("Không có log xác thực để lưu!", "Thông báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
 
-            using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-            {
-                saveFileDialog.Title = "Chọn nơi lưu file log";
-                saveFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
-                saveFileDialog.FileName = $"ServerLog_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    try
-                    {
-                        string filePath = saveFileDialog.FileName;
-
-                        using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
-                        {
-                            writer.WriteLine("=== SERVER AUTHENTICATION LOG ===");
-                            writer.WriteLine($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                            writer.WriteLine($"Server Port: {udpPort}");
-                            writer.WriteLine();
-
-                            foreach (string log in authenticationLogs)
-                            {
-                                writer.WriteLine(log);
-                            }
-                        }
-
-                        MessageBox.Show($"Đã lưu log thành công!\nFile: {filePath}", "Thành công",
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        AppendLog($"Log saved to: {filePath}");
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Lỗi lưu file: {ex.Message}", "Lỗi",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
         }
     }
 }

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ClientStreamApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+779fe008f4110b44ce3bfeb009f6b5b18474c12b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b4cc41c1f579259ea8906e86e29ecc254b1f51b")]
 [assembly: System.Reflection.AssemblyProductAttribute("ClientStreamApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ClientStreamApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
